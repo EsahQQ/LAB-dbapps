@@ -37,7 +37,7 @@ public class Program
             DeleteStudentAndEnrollment(db);
             Console.WriteLine("Нажите любую клавишу...");
             Console.Read();
-            UpdateStudentAndEnrollment(db);
+            UpdateEnrollment(db);
         }
         Console.Read();
     }
@@ -129,10 +129,11 @@ public class Program
 
     static void InsertStudentAndEnrollment(Db28021Context db)// 2.6; 2.7
     {
+        Console.WriteLine("2.6 Вставка данных в таблицу Students...");
         Student student = new()
         {
             FullName = "Александр Пушкин",
-            Email = "alex.pushka@gstu.com", // Email должен быть уникальным
+            Email = "alex.pushka@gstu.com",
             RegistrationDate = DateOnly.FromDateTime(DateTime.Now.Date)
         };
 
@@ -141,29 +142,30 @@ public class Program
         db.SaveChanges();
         Console.WriteLine($"Создан студент (ID: {student.StudentId})");
 
+        Console.WriteLine("2.7 Вставка данных в таблицу Enrollments...");
+        var courseToEnroll = db.Courses.FirstOrDefault(c => c.Status == "Активен");
         Enrollment enrollment = new()
         {
-            StudentId = student.StudentId, // Используем ID студента
-            CourseId = 1,   // Используем ID курса
+            StudentId = student.StudentId, 
+            CourseId = courseToEnroll.CourseId,  
             Progress = 0.00m,
             StartDate = DateOnly.FromDateTime(DateTime.Now.Date)
         };
 
-        // Добавить запись в DbSet
         db.Enrollments.Add(enrollment);
 
-        // Сохранить финальные изменения в базе данных
         db.SaveChanges();
         Console.WriteLine("Студент успешно записан на курс.");
     }
 
     static void DeleteStudentAndEnrollment(Db28021Context db)// 2.8; 2.9
     {
+        Console.WriteLine("2.8 Удаление данных из таблицы Enrollments...");
         string studentEmailToDelete = "alex.pushka@gstu.com";
         IQueryable<Student> studentsToDelete = db.Students.Where(s => s.Email == studentEmailToDelete);
 
         IQueryable<Enrollment> enrollmentsToDelete = db.Enrollments
-            .Include(e => e.Student) // Включаем связанные данные для фильтрации
+            .Include(e => e.Student) 
             .Where(e => e.Student.Email == studentEmailToDelete);
 
         if (enrollmentsToDelete.Any())
@@ -174,20 +176,21 @@ public class Program
 
         db.SaveChanges();
 
+        Console.WriteLine("2.9 Удаление данных из таблицы Students...");
         if (studentsToDelete.Any())
         {
             db.Students.RemoveRange(studentsToDelete);
             Console.WriteLine("Найденные студенты помечены к удалению.");
         }
 
-        // Сохраняем финальные изменения в базе данных
         db.SaveChanges();
 
         Console.WriteLine("Удаление завершено.");
     }
 
-    static void UpdateStudentAndEnrollment(Db28021Context db)// 2.10
+    static void UpdateEnrollment(Db28021Context db)// 2.10
     {
+        Console.WriteLine("2.10 Обновление данных в таблице Enrollment...");
         Course courseToUpdate = db.Courses
             .Where(c => c.CourseId == 1)
             .FirstOrDefault();
