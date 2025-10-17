@@ -52,15 +52,15 @@ public class DataCacheService : IDataCacheService
     {
         return tableName.ToLower() switch
         {
-            "students" => _db.Students.Take(20).ToList(),
-            "courses" => _db.Courses.Take(20).ToList(),
-            "instructors" => _db.Instructors.Take(20).ToList(),
-            "enrollments" => _db.Enrollments.Take(20).ToList(),
-            "testresults" => _db.TestResults.Take(20).ToList(),
-            "certificates" => _db.Certificates.Take(20).ToList(),
-            "modules" => _db.Modules.Take(20).ToList(),
-            "tests" => _db.Tests.Take(20).ToList(),
-            _ => null
+            "students" => _db.Students.OrderBy(s => s.StudentId).Take(20).ToList(),
+            "courses" => _db.Courses.OrderBy(c => c.CourseId).Take(20).ToList(),
+            "instructors" => _db.Instructors.OrderBy(i => i.InstructorId).Take(20).ToList(),
+            "enrollments" => _db.Enrollments.OrderBy(e => e.EnrollmentId).Take(20).ToList(),
+            "testresults" => _db.TestResults.OrderBy(tr => tr.ResultId).Take(20).ToList(),
+            "certificates" => _db.Certificates.OrderBy(c => c.CertificateId).Take(20).ToList(),
+            "modules" => _db.Modules.OrderBy(m => m.ModuleId).Take(20).ToList(),
+            "tests" => _db.Tests.OrderBy(t => t.TestId).Take(20).ToList(),
+            _ => null 
         };
     }
 }

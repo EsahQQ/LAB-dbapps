@@ -121,21 +121,24 @@ public class Program
         app.MapGet("/searchform1", async (HttpContext context, Db28021Context db) =>
         {
             context.Response.ContentType = "text/html; charset=utf-8";
-            var model = new SearchFormModel
-            {
-                SearchText = context.Request.Cookies["searchText1"],
-                SelectedCourse = context.Request.Cookies["selectedCourse1"],
-                DifficultyLevel = context.Request.Cookies["difficultyLevel1"]
-            };
+
+            var model = context.Session.Get<SearchFormModel>("searchForm2") ?? new SearchFormModel();
+
             if (context.Request.Query.Count > 0)
             {
-                model.SearchText = context.Request.Query["searchText"];
-                model.SelectedCourse = context.Request.Query["selectedCourse"];
-                model.DifficultyLevel = context.Request.Query["difficultyLevel"];
+                var modelToSave = new SearchFormModel 
+                {
+                    SearchText = context.Request.Query["searchText"],
+                    SelectedCourse = context.Request.Query["selectedCourse"],
+                    DifficultyLevel = context.Request.Query["difficultyLevel"]
+                };
+
                 var cookieOptions = new CookieOptions { Expires = DateTime.Now.AddMinutes(20) };
-                context.Response.Cookies.Append("searchText1", model.SearchText ?? "", cookieOptions);
-                context.Response.Cookies.Append("selectedCourse1", model.SelectedCourse ?? "", cookieOptions);
-                context.Response.Cookies.Append("difficultyLevel1", model.DifficultyLevel ?? "", cookieOptions);
+                context.Response.Cookies.Append("searchText1", modelToSave.SearchText ?? "", cookieOptions);
+                context.Response.Cookies.Append("selectedCourse1", modelToSave.SelectedCourse ?? "", cookieOptions);
+                context.Response.Cookies.Append("difficultyLevel1", modelToSave.DifficultyLevel ?? "", cookieOptions);
+
+                model = modelToSave;
             }
             var courses = await db.Courses.Select(c => c.Title).ToListAsync(); 
             string strResponse = "<HTML><HEAD><TITLE>Форма 1 (Cookies)</TITLE></HEAD>" +
@@ -160,13 +163,25 @@ public class Program
         app.MapGet("/searchform2", async (HttpContext context, Db28021Context db) =>
         {
             context.Response.ContentType = "text/html; charset=utf-8";
-            var model = context.Session.Get<SearchFormModel>("searchForm2") ?? new SearchFormModel();
+
+            var model = new SearchFormModel
+            {
+                SearchText = context.Request.Cookies["searchText1"],
+                SelectedCourse = context.Request.Cookies["selectedCourse1"],
+                DifficultyLevel = context.Request.Cookies["difficultyLevel1"]
+            };
+
             if (context.Request.Query.Count > 0)
             {
-                model.SearchText = context.Request.Query["searchText"];
-                model.SelectedCourse = context.Request.Query["selectedCourse"];
-                model.DifficultyLevel = context.Request.Query["difficultyLevel"];
-                context.Session.Set("searchForm2", model);
+                var modelToSave = new SearchFormModel
+                {
+                    SearchText = context.Request.Query["searchText"],
+                    SelectedCourse = context.Request.Query["selectedCourse"],
+                    DifficultyLevel = context.Request.Query["difficultyLevel"]
+                };
+                context.Session.Set("searchForm2", modelToSave);
+
+                model = modelToSave;
             }
             var courses = await db.Courses.Select(c => c.Title).ToListAsync();
             string strResponse = "<HTML><HEAD><TITLE>Форма 2 (Session)</TITLE></HEAD>" +
