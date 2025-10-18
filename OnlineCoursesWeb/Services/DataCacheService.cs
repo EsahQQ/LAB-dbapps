@@ -44,7 +44,10 @@ public class DataCacheService : IDataCacheService
 
     public IEnumerable GetData(string tableName)
     {
-        _cache.TryGetValue(tableName.ToLower(), out IEnumerable data);
+        if (_cache.TryGetValue(tableName.ToLower(), out IEnumerable data))
+        {
+            Console.WriteLine($"--> Данные для таблицы '{tableName}' взяты из кэша.");
+        }
         return data;
     }
 

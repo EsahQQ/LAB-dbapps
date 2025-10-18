@@ -120,6 +120,7 @@ public class Program
 
         app.MapGet("/searchform1", async (HttpContext context, Db28021Context db) =>
         {
+            Console.WriteLine("\n--> /searchform1: Загрузка данных формы из Session.");
             context.Response.ContentType = "text/html; charset=utf-8";
 
             var model = context.Session.Get<SearchFormModel>("searchForm2") ?? new SearchFormModel();
@@ -162,6 +163,7 @@ public class Program
 
         app.MapGet("/searchform2", async (HttpContext context, Db28021Context db) =>
         {
+            Console.WriteLine("\n--> /searchform2: Загрузка данных формы из Cookies.");
             context.Response.ContentType = "text/html; charset=utf-8";
 
             var model = new SearchFormModel
