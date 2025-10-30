@@ -1,0 +1,52 @@
+﻿@model IEnumerable<OnlineCoursesMVC.Models.Course>
+
+@{
+    ViewData["Title"] = "Курсы";
+}
+
+<h1>Список курсов</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Difficulty)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                Преподаватель
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Difficulty)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @* Выводим имя из связанного объекта Instructor *@
+                    @Html.DisplayFor(modelItem => item.Instructor.FullName)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
