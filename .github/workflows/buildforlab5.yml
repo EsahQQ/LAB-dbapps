@@ -33,12 +33,9 @@ jobs:
       # Собираем все проекты в решении
       run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release --no-restore
       
-    # --- НОВЫЙ ШАГ ---
     - name: Test
-      # Запускаем все тесты, найденные в решении
-      run: dotnet test ${{ env.SOLUTION_FILE_PATH }} --no-build --verbosity normal
+      run: dotnet test ${{ env.SOLUTION_FILE_PATH }} --verbosity normal
 
-    # Шаги Publish и Upload остаются, но им нужно указать путь к проекту
     - name: Publish application
       # Публикуем только основной проект
       run: dotnet publish ./OnlineCoursesMVC/OnlineCoursesMVC.csproj --configuration Release --output ./publish --no-build
