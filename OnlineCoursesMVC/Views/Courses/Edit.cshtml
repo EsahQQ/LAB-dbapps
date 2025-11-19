@@ -1,0 +1,30 @@
+﻿@model OnlineCoursesMVC.Models.CourseViewModel
+
+@{
+    ViewData["Title"] = "Редактировать курс";
+}
+
+<h1>Редактировать курс</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <!-- Скрытое поле для передачи ID обратно на сервер -->
+            <input type="hidden" asp-for="CourseId" />
+
+            @* Вызываем то же самое частичное представление *@
+            <partial name="_CourseFormPartial" for="@Model" />
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

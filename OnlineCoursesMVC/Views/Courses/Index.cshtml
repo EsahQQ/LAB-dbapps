@@ -1,0 +1,92 @@
+﻿@model PaginatedList<OnlineCoursesMVC.Models.Course>
+
+@{
+    ViewData["Title"] = "Курсы";
+}
+
+<h1>Список курсов</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Создать новый курс</a>
+</p>
+
+<!-- Форма для фильтрации -->
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color mb-3">
+        <p>
+            Поиск по названию: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Найти" class="btn btn-primary" /> |
+            <a asp-action="Index">Показать все</a>
+        </p>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().Difficulty)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().Instructor.FullName)
+            </th>
+            <th></th> <!-- Пустой заголовок для колонки с действиями -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Difficulty)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Instructor.FullName)
+                </td>
+                <td>
+                    <!-- Ссылки на действия для каждой записи -->
+                    <a asp-action="Edit" asp-route-id="@item.CourseId">Изменить</a> |
+                    <a asp-action="Details" asp-route-id="@item.CourseId">Детали</a> |
+                    <a asp-action="Delete" asp-route-id="@item.CourseId">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Кнопки для пагинации -->
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-searchString="@ViewData["CurrentFilter"]"
+   class="btn btn-secondary @prevDisabled">
+    Назад
+</a>
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-searchString="@ViewData["CurrentFilter"]"
+   class="btn btn-primary @nextDisabled">
+    Вперед
+</a>

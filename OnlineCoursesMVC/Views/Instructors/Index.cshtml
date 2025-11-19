@@ -1,0 +1,55 @@
+﻿@model PaginatedList<OnlineCoursesMVC.Models.Instructor>
+
+@{
+    ViewData["Title"] = "Преподаватели";
+}
+
+<h1>Преподаватели</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Создать нового преподователя</a>
+</p>
+
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color mb-3">
+        <p>
+            Поиск по имени: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Найти" class="btn btn-primary" /> |
+            <a asp-action="Index">Показать все</a>
+        </p>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstOrDefault().FullName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.InstructorId">Изменить</a> |
+                    <a asp-action="Details" asp-route-id="@item.InstructorId">Детали</a> |
+                    <a asp-action="Delete" asp-route-id="@item.InstructorId">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Кнопки пагинации -->
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+<a asp-action="Index" asp-route-pageNumber="@(Model.PageIndex - 1)" asp-route-searchString="@ViewData["CurrentFilter"]" class="btn btn-secondary @prevDisabled">Назад</a>
+<a asp-action="Index" asp-route-pageNumber="@(Model.PageIndex + 1)" asp-route-searchString="@ViewData["CurrentFilter"]" class="btn btn-primary @nextDisabled">Вперед</a>

@@ -1,0 +1,54 @@
+﻿@model OnlineCoursesMVC.Models.CourseViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="form-group mb-3">
+    <label asp-for="Title" class="control-label"></label>
+    <input asp-for="Title" class="form-control" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+</div>
+
+<div class="form-group mb-3">
+    <label asp-for="Description" class="control-label"></label>
+    <textarea asp-for="Description" class="form-control"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+<div class="form-group mb-3">
+    <label asp-for="Category" class="control-label"></label>
+    <input asp-for="Category" class="form-control" />
+    <span asp-validation-for="Category" class="text-danger"></span>
+</div>
+
+<div class="form-group mb-3">
+    <label asp-for="Difficulty" class="control-label"></label>
+    <select asp-for="Difficulty" class="form-control">
+        <option value="">-- Выберите сложность --</option>
+        <option value="Начальный">Начальный</option>
+        <option value="Средний">Средний</option>
+        <option value="Продвинутый">Продвинутый</option>
+    </select>
+    <span asp-validation-for="Difficulty" class="text-danger"></span>
+</div>
+
+<div class="form-group mb-3">
+    <label asp-for="Status" class="control-label"></label>
+    <select asp-for="Status" class="form-control">
+        <option value="">-- Выберите статус --</option>
+        <option value="Активен">Активен</option>
+        <option value="В архиве">В архиве</option>
+        <option value="В разработке">В разработке</option>
+    </select>
+    <span asp-validation-for="Status" class="text-danger"></span>
+</div>
+
+<div class="form-group mb-3">
+    <label asp-for="InstructorId" class="control-label"></label>
+
+    <!-- ИЗМЕНЕНО: Используем InstructorOptions -->
+    <select asp-for="InstructorId" class="form-control" asp-items="Model.InstructorOptions">
+        <option value="">-- Выберите преподавателя --</option>
+    </select>
+
+    <span asp-validation-for="InstructorId" class="text-danger"></span>
+</div>
