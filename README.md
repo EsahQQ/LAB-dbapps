@@ -1,1 +1,1 @@
-[![Build and Publish for lab4](https://github.com/IT-GSTU/iti9/actions/workflows/build.yml/badge.svg)](https://github.com/IT-GSTU/iti9/actions/workflows/build.yml)
+[![Build and Publish for lab5](https://github.com/IT-GSTU/iti9/actions/workflows/buildforlab5.yml/badge.svg)](https://github.com/IT-GSTU/iti9/actions/workflows/buildforlab5.yml)

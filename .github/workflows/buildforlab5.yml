@@ -2,7 +2,7 @@ name: Build and Publish for lab5
 
 on:
   push:
-    branches: [lab4]
+    branches: [lab5]
 
 env:
   DOTNET_VERSION: '8.0.x'
