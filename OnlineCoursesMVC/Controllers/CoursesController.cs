@@ -20,8 +20,22 @@ namespace OnlineCoursesMVC.Controllers
         }
 
         // GET: /Courses
-        public async Task<IActionResult> Index(string searchString, int? pageNumber)
+        public async Task<IActionResult> Index(string searchString, int? pageNumber, string clearFilter)
         {
+            if (clearFilter != null)
+            {
+                HttpContext.Session.Remove("CoursesSearchString");
+            }
+
+            if (searchString != null)
+            {
+                HttpContext.Session.SetString("CoursesSearchString", searchString);
+            }
+            else
+            {
+                searchString = HttpContext.Session.GetString("CoursesSearchString");
+            }
+
             ViewData["CurrentFilter"] = searchString;
 
             var courses = from c in _context.Courses.Include(c => c.Instructor)
@@ -32,14 +46,13 @@ namespace OnlineCoursesMVC.Controllers
                 courses = courses.Where(c => c.Title.Contains(searchString));
             }
 
-            int pageSize = 2; // 2 курсов на страницу
+            int pageSize = 2; //2
             return View(await PaginatedList<Course>.CreateAsync(courses.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Courses/Create
         public IActionResult Create()
         {
-            // Создаем ViewModel и заполняем список преподавателей для выпадающего меню
             var viewModel = new CourseViewModel
             {
                 InstructorOptions = _context.Instructors.Select(i => new SelectListItem
@@ -58,7 +71,6 @@ namespace OnlineCoursesMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                // "Перекладываем" данные из ViewModel в нашу доменную модель Course
                 var course = new Course
                 {
                     Title = viewModel.Title,
@@ -74,7 +86,6 @@ namespace OnlineCoursesMVC.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Если модель невалидна, нужно заново заполнить выпадающий список
             viewModel.InstructorOptions = _context.Instructors.Select(i => new SelectListItem
             {
                 Value = i.InstructorId.ToString(),
@@ -92,7 +103,7 @@ namespace OnlineCoursesMVC.Controllers
             }
 
             var course = await _context.Courses
-                .Include(c => c.Instructor) // Подгружаем преподавателя
+                .Include(c => c.Instructor) 
                 .FirstOrDefaultAsync(m => m.CourseId == id);
             if (course == null)
             {
@@ -116,7 +127,6 @@ namespace OnlineCoursesMVC.Controllers
                 return NotFound();
             }
 
-            // Создаем ViewModel на основе данных из модели EF
             var viewModel = new CourseViewModel
             {
                 CourseId = course.CourseId,
@@ -126,7 +136,7 @@ namespace OnlineCoursesMVC.Controllers
                 Difficulty = course.Difficulty,
                 Status = course.Status,
                 InstructorId = course.InstructorId,
-                // Заполняем выпадающий список, указывая текущего выбранного преподавателя
+
                 InstructorOptions = _context.Instructors.Select(i => new SelectListItem
                 {
                     Value = i.InstructorId.ToString(),
@@ -151,14 +161,12 @@ namespace OnlineCoursesMVC.Controllers
             {
                 try
                 {
-                    // Находим оригинальную сущность в БД
                     var course = await _context.Courses.FindAsync(id);
                     if (course == null)
                     {
                         return NotFound();
                     }
 
-                    // Обновляем ее свойства из ViewModel
                     course.Title = viewModel.Title;
                     course.Description = viewModel.Description;
                     course.Category = viewModel.Category;
@@ -183,7 +191,6 @@ namespace OnlineCoursesMVC.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Если модель невалидна, снова заполняем выпадающий список
             viewModel.InstructorOptions = new SelectList(_context.Instructors, "InstructorId", "FullName", viewModel.InstructorId);
             return View(viewModel);
         }
@@ -197,7 +204,7 @@ namespace OnlineCoursesMVC.Controllers
             }
 
             var course = await _context.Courses
-                .Include(c => c.Instructor) // Подгружаем преподавателя для отображения
+                .Include(c => c.Instructor) 
                 .FirstOrDefaultAsync(m => m.CourseId == id);
             if (course == null)
             {

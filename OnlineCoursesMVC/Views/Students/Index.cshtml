@@ -16,7 +16,7 @@
         <p>
             Поиск по имени: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
             <input type="submit" value="Найти" class="btn btn-primary" /> |
-            <a asp-action="Index">Показать все</a>
+            <a asp-action="Index" asp-route-clearFilter="true">Показать все</a>
         </p>
     </div>
 </form>

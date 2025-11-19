@@ -6,13 +6,8 @@ using OnlineCoursesMVC.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- РЕГИСТРАЦИЯ СЕРВИСОВ ---
-
-// 1. Настройка подключения к основной БД (AppConnection)
-// Это ваш работающий подход, но сделанный чуть более явно.
 IConfigurationRoot configuration = builder.Configuration.AddUserSecrets<Program>().Build();
 
-// 1. Настройка подключения к основной БД (AppConnection)
 var appConnectionString = configuration.GetConnectionString("AppConnection");
 var appSqlBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(appConnectionString)
 {
@@ -22,7 +17,6 @@ var appSqlBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(appC
 builder.Services.AddDbContext<Db31048Context>(options => 
     options.UseSqlServer(appSqlBuilder.ConnectionString));
 
-// 2. Настройка подключения к БД Identity (IdentityConnection)
 var identityConnectionString = configuration.GetConnectionString("IdentityConnection");
 var identitySqlBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(identityConnectionString)
 {
@@ -32,12 +26,10 @@ var identitySqlBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseSqlServer(identitySqlBuilder.ConnectionString));
 
-// 3. Настройка и регистрация ASP.NET Core Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// 4. Добавление сервисов MVC
 int variantNumber = 9;
 int cacheDuration = 2 * variantNumber + 240;
 
@@ -49,11 +41,19 @@ builder.Services.AddControllersWithViews(options =>
             Duration = cacheDuration,
             Location = ResponseCacheLocation.Any
         });
-}); 
+});
+
+
+builder.Services.AddDistributedMemoryCache(); 
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
-
-// --- НАСТРОЙКА КОНВЕЙЕРА MIDDLEWARE ---
 
 if (!app.Environment.IsDevelopment())
 {
@@ -65,10 +65,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Middleware сделает всю работу по инициализации обеих баз
 app.UseDbInitializer();
 
 app.MapControllerRoute(

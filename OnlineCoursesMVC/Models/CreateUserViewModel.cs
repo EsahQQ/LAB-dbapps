@@ -1,5 +1,4 @@
-﻿// Models/CreateUserViewModel.cs
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OnlineCoursesMVC.Models
 {

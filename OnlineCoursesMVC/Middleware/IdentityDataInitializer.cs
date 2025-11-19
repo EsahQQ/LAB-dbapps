@@ -9,7 +9,6 @@ namespace OnlineCoursesMVC.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-            // Создание ролей
             string[] roleNames = { "Admin", "User" };
             foreach (var roleName in roleNames)
             {
@@ -19,7 +18,6 @@ namespace OnlineCoursesMVC.Data
                 }
             }
 
-            // Создание админа
             var adminEmail = "admin@example.com";
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
@@ -44,7 +42,6 @@ namespace OnlineCoursesMVC.Data
                 var createResult = await userManager.CreateAsync(newUser, "User_123");
                 if (createResult.Succeeded)
                 {
-                    // Назначаем новому пользователю роль "User"
                     await userManager.AddToRoleAsync(newUser, "User");
                 }
             }

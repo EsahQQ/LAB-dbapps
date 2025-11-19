@@ -7,20 +7,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+namespace OnlineCoursesMVC.Controllers;
+
 [Authorize(Roles = "Admin")]
 public class UsersController : Controller
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
-
-    // Внедряем UserManager и RoleManager
     public UsersController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
     }
 
-    // GET: /Users (список)
+    // GET: /Users 
     public async Task<IActionResult> Index()
     {
         var users = await _userManager.Users.ToListAsync();
@@ -44,14 +44,11 @@ public class UsersController : Controller
         var user = await _userManager.FindByIdAsync(id);
         if (user != null)
         {
-            // Не позволяем удалить самого себя
             if (_userManager.GetUserId(User) == id)
             {
-                // Можно добавить сообщение об ошибке
                 return RedirectToAction(nameof(Index));
             }
             var result = await _userManager.DeleteAsync(user);
-            // Здесь можно добавить проверку result.Succeeded
         }
         return RedirectToAction(nameof(Index));
     }
@@ -93,9 +90,9 @@ public class UsersController : Controller
         if (user == null) return NotFound();
 
         var userRoles = await _userManager.GetRolesAsync(user);
-        // Удаляем все текущие роли
+
         await _userManager.RemoveFromRolesAsync(user, userRoles);
-        // Добавляем только выбранные
+
         await _userManager.AddToRolesAsync(user, model.Roles.Where(r => r.IsSelected).Select(r => r.RoleName));
 
         return RedirectToAction(nameof(Index));
@@ -119,7 +116,6 @@ public class UsersController : Controller
 
             if (result.Succeeded)
             {
-                // По умолчанию назначаем роль "User"
                 await _userManager.AddToRoleAsync(user, "User");
                 return RedirectToAction(nameof(Index));
             }

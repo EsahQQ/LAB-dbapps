@@ -23,8 +23,23 @@ namespace OnlineCoursesMVC.Controllers
         }
 
         // GET: Instructors
-        public async Task<IActionResult> Index(string searchString, int? pageNumber)
+        public async Task<IActionResult> Index(string searchString, int? pageNumber, string clearFilter)
         {
+            if (clearFilter != null)
+            {
+                HttpContext.Session.Remove("InstructorsSearchString");
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (searchString != null)
+            {
+                HttpContext.Session.SetString("InstructorsSearchString", searchString);
+            }
+            else
+            {
+                searchString = HttpContext.Session.GetString("InstructorsSearchString");
+            }
+
             ViewData["CurrentFilter"] = searchString;
 
             var instructors = from i in _context.Instructors
@@ -35,10 +50,9 @@ namespace OnlineCoursesMVC.Controllers
                 instructors = instructors.Where(i => i.FullName.Contains(searchString));
             }
 
-            // Сортируем по имени
             instructors = instructors.OrderBy(i => i.FullName);
 
-            int pageSize = 10;
+            int pageSize = 2;
             return View(await PaginatedList<Instructor>.CreateAsync(instructors.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 

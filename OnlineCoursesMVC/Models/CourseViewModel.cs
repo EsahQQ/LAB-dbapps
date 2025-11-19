@@ -32,7 +32,6 @@ namespace OnlineCoursesMVC.Models
         [Display(Name = "Статус")]
         public string Status { get; set; }
 
-        // Это свойство будет хранить список преподавателей для выпадающего меню
         public IEnumerable<SelectListItem>? InstructorOptions { get; set; }
     }
 }

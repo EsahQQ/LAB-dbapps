@@ -12,7 +12,6 @@ namespace OnlineCoursesMVC.Middleware
 
         public async Task InvokeAsync(HttpContext context, IServiceProvider serviceProvider)
         {
-            // Используем блокировку, чтобы инициализация прошла только один раз
             lock (_lock)
             {
                 if (!_isInitialized)
@@ -21,12 +20,9 @@ namespace OnlineCoursesMVC.Middleware
                     {
                         var scopedProvider = scope.ServiceProvider;
 
-                        // 1. Инициализация основной базы данных
                         var appDbContext = scopedProvider.GetRequiredService<Db31048Context>();
                         DbInitializer.Initialize(appDbContext);
 
-                        // 2. Асинхронная инициализация базы данных Identity
-                        // .GetAwaiter().GetResult() - способ синхронно дождаться завершения async метода
                         IdentityDataInitializer.InitializeAsync(scopedProvider).GetAwaiter().GetResult();
                     }
                     _isInitialized = true;

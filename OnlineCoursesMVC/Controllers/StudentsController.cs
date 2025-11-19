@@ -6,6 +6,8 @@ using OnlineCoursesMVC.Infrastructure;
 using OnlineCoursesMVC.Models;
 using System.Threading.Tasks;
 
+namespace OnlineCoursesMVC.Controllers;
+
 [Authorize]
 public class StudentsController : Controller
 {
@@ -17,8 +19,23 @@ public class StudentsController : Controller
     }
 
     // GET: Students
-    public async Task<IActionResult> Index(string searchString, int? pageNumber)
+    public async Task<IActionResult> Index(string searchString, int? pageNumber, string clearFilter)
     {
+        if (clearFilter != null)
+        {
+            HttpContext.Session.Remove("StudentsSearchString");
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (searchString != null)
+        {
+            HttpContext.Session.SetString("StudentsSearchString", searchString);
+        }
+        else
+        {
+            searchString = HttpContext.Session.GetString("StudentsSearchString");
+        }
+
         ViewData["CurrentFilter"] = searchString;
 
         var students = from s in _context.Students
@@ -26,10 +43,12 @@ public class StudentsController : Controller
 
         if (!String.IsNullOrEmpty(searchString))
         {
-            students = students.Where(s => s.FullName.Contains(searchString));
+            students = students.Where(s => s.FullName.Contains(searchString) || s.Email.Contains(searchString));
         }
 
-        int pageSize = 2; // Поставим 3, так как студентов у нас немного
+        students = students.OrderBy(s => s.FullName);
+
+        int pageSize = 2;
         return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(), pageNumber ?? 1, pageSize));
     }
 
