@@ -1,15 +1,16 @@
-name: Build and Publish for lab5
+name: Build, Test and Publish for Lab 5
 
 on:
   push:
-    branches: [lab5]
+    branches: [lab5] # Убедитесь, что ваша ветка называется lab5, или main
 
 env:
   DOTNET_VERSION: '8.0.x'
+  SOLUTION_FILE_PATH: . # Путь к файлу .sln. Если он в корне, то оставляем '.', иначе указываем папку
 
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
+  build-and-test:
+    name: Build and Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -25,18 +26,26 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
       
     - name: Restore dependencies
-      run: dotnet restore
+      # Восстанавливаем зависимости для всего решения
+      run: dotnet restore ${{ env.SOLUTION_FILE_PATH }}
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      # Собираем все проекты в решении
+      run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release --no-restore
       
+    # --- НОВЫЙ ШАГ ---
+    - name: Test
+      # Запускаем все тесты, найденные в решении
+      run: dotnet test ${{ env.SOLUTION_FILE_PATH }} --no-build --verbosity normal
+
+    # Шаги Publish и Upload остаются, но им нужно указать путь к проекту
     - name: Publish application
-      run: dotnet publish --configuration Release --output ./publish --no-build
+      # Публикуем только основной проект
+      run: dotnet publish ./OnlineCoursesMVC/OnlineCoursesMVC.csproj --configuration Release --output ./publish --no-build
       
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: myapp-${{ matrix.os }}
-        path: |
-          ./publish/**
+        path: ./publish # Путь теперь без **
         retention-days: 30
