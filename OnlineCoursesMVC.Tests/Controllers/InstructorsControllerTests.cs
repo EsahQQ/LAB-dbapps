@@ -1,16 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using OnlineCoursesMVC.Controllers;
 using OnlineCoursesMVC.Data;
 using OnlineCoursesMVC.Infrastructure;
 using OnlineCoursesMVC.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace OnlineCoursesMVC.Tests.Controllers
 {
@@ -22,12 +17,16 @@ namespace OnlineCoursesMVC.Tests.Controllers
 
         public InstructorsControllerTests()
         {
-            _instructors = new List<Instructor>
+            _instructors = new List<Instructor>();
+
+            for (int i = 0; i < 100; i++)
             {
-                new Instructor { InstructorId = 1, FullName = "Тестовый Преподаватель 1" },
-                new Instructor { InstructorId = 2, FullName = "Тестовый Преподаватель 2" },
-                new Instructor { InstructorId = 3, FullName = "Тестовый Преподаватель 3" }
-            };
+                _instructors.Add(new Instructor
+                {
+                    InstructorId = i,
+                    FullName = $"Тестовый Преподаватель {i}"
+                });
+            }
 
             _mockContext = new Mock<Db31048Context>();
 
@@ -68,7 +67,7 @@ namespace OnlineCoursesMVC.Tests.Controllers
         [Fact]
         public async Task Details_ReturnsNotFoundResult_WhenInstructorNotFound()
         {
-            int nonExistentId = 99;
+            int nonExistentId = 101;
 
             var result = await _controller.Details(nonExistentId);
 

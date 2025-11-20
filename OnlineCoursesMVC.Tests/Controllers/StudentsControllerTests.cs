@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
 using OnlineCoursesMVC.Controllers;
 using OnlineCoursesMVC.Data;
 using OnlineCoursesMVC.Infrastructure;
 using OnlineCoursesMVC.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+
 
 namespace OnlineCoursesMVC.Tests.Controllers
 {
@@ -22,13 +18,17 @@ namespace OnlineCoursesMVC.Tests.Controllers
 
         public StudentsControllerTests()
         {
-            _students = new List<Student>
-        {
-            new Student { StudentId = 1, FullName = "Тестовый Студент 1", Email = "test1@test.com" },
-            new Student { StudentId = 2, FullName = "Тестовый Студент 2", Email = "test2@test.com" },
-            new Student { StudentId = 3, FullName = "Тестовый Студент 3", Email = "test3@test.com" }
-        };
+            _students = new List<Student>();
 
+            for (int i = 0; i < 100; i++)
+            {
+                _students.Add(new Student
+                {
+                    StudentId = i,
+                    FullName = $"Тестовый Студент {i}",
+                    Email = $"test{i}@test.com"
+                });
+            }
             _mockContext = new Mock<Db31048Context>();
 
             _mockContext.Setup(c => c.Students).ReturnsDbSet(_students);
@@ -55,7 +55,7 @@ namespace OnlineCoursesMVC.Tests.Controllers
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsAssignableFrom<PaginatedList<Student>>(viewResult.ViewData.Model);
 
-            int expectedCount = 2;
+            int expectedCount = 25;
             Assert.Equal(expectedCount, model.Count);
         }
 
@@ -72,7 +72,7 @@ namespace OnlineCoursesMVC.Tests.Controllers
         [Fact]
         public async Task Details_ReturnsNotFoundResult_WhenStudentNotFound()
         {
-            int nonExistentId = 99;
+            int nonExistentId = 101;
 
             var result = await _controller.Details(nonExistentId);
 

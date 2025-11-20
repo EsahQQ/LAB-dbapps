@@ -46,7 +46,7 @@ namespace OnlineCoursesMVC.Controllers
                 courses = courses.Where(c => c.Title.Contains(searchString));
             }
 
-            int pageSize = 2; //2
+            int pageSize = 25; //2
             return View(await PaginatedList<Course>.CreateAsync(courses.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 

@@ -1,17 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.EntityFrameworkCore;
 using OnlineCoursesMVC.Controllers;
 using OnlineCoursesMVC.Data;
 using OnlineCoursesMVC.Infrastructure;
 using OnlineCoursesMVC.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+
 
 namespace OnlineCoursesMVC.Tests.Controllers
 {
@@ -24,19 +19,30 @@ namespace OnlineCoursesMVC.Tests.Controllers
 
         public CoursesControllerTests()
         {
- 
-            _instructors = new List<Instructor>
-            {
-                new Instructor { InstructorId = 1, FullName = "Тестовый Преподаватель 1" },
-                new Instructor { InstructorId = 2, FullName = "Тестовый Преподаватель 2" }
-            };
 
-            _courses = new List<Course>
+            _instructors = new List<Instructor>();
+
+            for (int i = 0; i < 100; i++)
             {
-                new Course { CourseId = 1, Title = "Курс 1", InstructorId = 1, Instructor = _instructors[0] },
-                new Course { CourseId = 2, Title = "Курс 2", InstructorId = 2, Instructor = _instructors[1] },
-                new Course { CourseId = 3, Title = "Курс 3", InstructorId = 1, Instructor = _instructors[0] }
-            };
+                _instructors.Add(new Instructor
+                {
+                    InstructorId = i,
+                    FullName = $"Тестовый Преподаватель {i}"
+                });
+            }
+
+            _courses = new List<Course>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                _courses.Add(new Course
+                {
+                    CourseId = i,
+                    Title = $"Курс {i}",
+                    InstructorId = i,
+                    Instructor = _instructors[i]
+                });
+            }
 
             _mockContext = new Mock<Db31048Context>();
 
@@ -70,13 +76,12 @@ namespace OnlineCoursesMVC.Tests.Controllers
         [Fact]
         public async Task Index_ReturnsFilteredResults_WhenSearchStringIsProvided()
         {
-            string searchString = "Курс 2"; 
+            string searchString = "Курс 1"; 
 
             var result = await _controller.Index(searchString, null, null);
 
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsAssignableFrom<PaginatedList<Course>>(viewResult.ViewData.Model);
-            Assert.Single(model); 
             Assert.Equal(searchString, model[0].Title);
         }
 

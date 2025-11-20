@@ -2,11 +2,11 @@ name: Build, Test and Publish for Lab 5
 
 on:
   push:
-    branches: [lab5] # Убедитесь, что ваша ветка называется lab5, или main
+    branches: [lab5]
 
 env:
   DOTNET_VERSION: '8.0.x'
-  SOLUTION_FILE_PATH: . # Путь к файлу .sln. Если он в корне, то оставляем '.', иначе указываем папку
+  SOLUTION_FILE_PATH: . 
 
 jobs:
   build-and-test:

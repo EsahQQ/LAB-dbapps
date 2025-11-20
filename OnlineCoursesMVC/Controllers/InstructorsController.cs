@@ -52,7 +52,7 @@ namespace OnlineCoursesMVC.Controllers
 
             instructors = instructors.OrderBy(i => i.FullName);
 
-            int pageSize = 2;
+            int pageSize = 25;
             return View(await PaginatedList<Instructor>.CreateAsync(instructors.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
