@@ -1,0 +1,30 @@
+name: Build and Publish for lab6
+
+on:
+  push:
+    branches: [lab6]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: self-hosted
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Release --no-restore 
+
+    - name: Test
+      run: dotnet test --configuration Release --no-build --verbosity normal
+      
+    - name: Publish application
+      run: dotnet publish --configuration Release --output ./publish --no-build 
+      
