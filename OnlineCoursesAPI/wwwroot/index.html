@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Управление результатами тестов</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <h2>Форма для данных</h2>
+        <form name="dataForm">
+            <input type="hidden" name="resultId" value="0" />
+            <div class="form-group">
+                <label for="studentId">ID Студента:</label>
+                <input class="form-control" name="studentId" type="number" />
+            </div>
+            <div class="form-group">
+                <label for="testId">ID Теста:</label>
+                <input class="form-control" name="testId" type="number" />
+            </div>
+            <div class="form-group">
+                <label for="score">Балл:</label>
+                <input class="form-control" name="score" type="number" />
+            </div>
+            <div class="form-group">
+                <label for="completionDate">Дата:</label>
+                <input class="form-control" name="completionDate" type="date" />
+            </div>
+            <div class="panel-body">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a id="reset" class="btn btn-secondary">Сбросить</a>
+            </div>
+        </form>
+
+        <h2 class="mt-4">Список результатов тестов</h2>
+        <table class="table table-condensed table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя студента</th>
+                    <th>Название теста</th>
+                    <th>Балл</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const apiUri = "/api/TestResults";
+        const tableBody = document.querySelector("tbody");
+        const dataForm = document.forms["dataForm"];
+
+        async function getTestResults() {
+            const response = await fetch(apiUri, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+
+            if (response.ok === true) {
+                const results = await response.json();
+                tableBody.innerHTML = '';
+                results.forEach(result => tableBody.append(createTableRow(result)));
+            } else {
+                console.error("Ошибка при загрузке данных:", response.status);
+            }
+        }
+
+        function createTableRow(result) {
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", result.testResultId); 
+
+            tr.insertAdjacentHTML("beforeend", `<td>${result.testResultId}</td>`);
+            tr.insertAdjacentHTML("beforeend", `<td>${result.studentName}</td>`);
+            tr.insertAdjacentHTML("beforeend", `<td>${result.testTitle}</td>`);
+            tr.insertAdjacentHTML("beforeend", `<td>${result.score}</td>`);
+
+            const dateParts = result.completionDate.split('-');
+            const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            tr.insertAdjacentHTML("beforeend", `<td>${date.toLocaleDateString()}</td>`);
+
+            const linksTd = document.createElement("td");
+            linksTd.innerHTML =
+                `<a class="edit-link" style="cursor:pointer; padding-right:15px;">Изменить</a>
+                 <a class="remove-link" style="cursor:pointer;">Удалить</a>`;
+            tr.appendChild(linksTd);
+
+            return tr;
+        }
+
+        async function getTestResultForEdit(id) {
+            const response = await fetch(`${apiUri}/${id}`);
+            if (response.ok === true) {
+                const result = await response.json();
+                dataForm.elements["resultId"].value = result.testResultId; 
+                dataForm.elements["studentId"].value = result.studentId; 
+                dataForm.elements["testId"].value = result.testId;        
+                dataForm.elements["score"].value = result.score;          
+                dataForm.elements["completionDate"].value = result.completionDate; 
+            }
+        }
+
+        async function deleteTestResult(id) {
+            const response = await fetch(`${apiUri}/${id}`, {
+                method: "DELETE"
+            });
+            if (response.ok === true) {
+                document.querySelector(`tr[data-rowid='${id}']`).remove();
+            } else {
+                console.error("Ошибка при удалении:", response.status);
+            }
+        }
+
+        async function createTestResult(studentId, testId, score, completionDate) {
+            const response = await fetch(apiUri, {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    StudentId: parseInt(studentId, 10),
+                    TestId: parseInt(testId, 10),
+                    Score: parseInt(score, 10),
+                    CompletionDate: completionDate
+                })
+            });
+
+            if (response.ok === true) {
+                resetForm();
+                await getTestResults();
+            } else {
+                console.error("Ошибка при создании:", response.status);
+            }
+        }
+
+        async function editTestResult(id, studentId, testId, score, completionDate) {
+            const response = await fetch(`${apiUri}/${id}`, {
+                method: "PUT",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    TestResultId: parseInt(id, 10),
+                    StudentId: parseInt(studentId, 10),
+                    TestId: parseInt(testId, 10),
+                    Score: parseInt(score, 10),
+                    CompletionDate: completionDate
+                })
+            });
+
+            if (response.ok === true) {
+                resetForm();
+                await getTestResults();
+            } else {
+                console.error("Ошибка при редактировании:", response.status);
+            }
+        }
+
+        function resetForm() {
+            dataForm.reset();
+            dataForm.elements["resultId"].value = 0;
+        }
+
+        document.getElementById("reset").addEventListener("click", e => {
+            e.preventDefault();
+            resetForm();
+        });
+
+        dataForm.addEventListener("submit", async e => {
+            e.preventDefault();
+            const id = dataForm.elements["resultId"].value;
+            const studentId = dataForm.elements["studentId"].value;
+            const testId = dataForm.elements["testId"].value;
+            const score = dataForm.elements["score"].value;
+            const completionDate = dataForm.elements["completionDate"].value;
+
+            if (id == 0) {
+                await createTestResult(studentId, testId, score, completionDate);
+            } else {
+                await editTestResult(id, studentId, testId, score, completionDate);
+            }
+        });
+
+        tableBody.addEventListener("click", async function (e) {
+            const row = e.target.closest('tr');
+            if (!row) return;
+            const id = row.dataset.rowid;
+
+            if (e.target.classList.contains('edit-link')) {
+                e.preventDefault();
+                await getTestResultForEdit(id);
+            }
+
+            if (e.target.classList.contains('remove-link')) {
+                e.preventDefault();
+                await deleteTestResult(id);
+            }
+        });
+
+        getTestResults();
+    </script>
+</body>
+</html>
