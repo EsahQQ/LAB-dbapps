@@ -82,5 +82,66 @@ namespace OnlineCoursesAPI.Tests.Controllers
             _mockContext.Verify(c => c.TestResults.Add(It.IsAny<TestResult>()), Times.Once());
             _mockContext.Verify(c => c.SaveChangesAsync(default), Times.Once());
         }
+
+        [Fact]
+        public async Task GetTestResult_ReturnsCorrectViewModel_ForValidId() 
+        {
+            // Arrange
+            long validId = 1;
+
+            // Act
+            var result = await _controller.GetTestResult(validId);
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<TestResultViewModel>>(result);
+            var model = Assert.IsType<TestResultViewModel>(actionResult.Value);
+
+            Assert.Equal(validId, model.TestResultId);
+            Assert.Equal("Тест Студент", model.StudentName); 
+            Assert.Equal("Тест Тестовый", model.TestTitle); 
+        }
+
+        [Fact]
+        public async Task PutTestResult_ReturnsNoContent_ForValidUpdate()
+        {
+            // Arrange
+            int existingId = 1;
+
+            var updateDto = new TestResultUpdateDto
+            {
+                TestResultId = existingId,
+                StudentId = 1,
+                TestId = 1,
+                Score = 99, 
+                CompletionDate = DateOnly.FromDateTime(System.DateTime.Now)
+            };
+
+            _mockContext.Setup(c => c.TestResults.FindAsync(It.IsAny<object[]>()))
+                        .ReturnsAsync((object[] ids) => _testResults.FirstOrDefault(tr => tr.TestResultId == (long)ids[0]));
+            // Act
+            var result = await _controller.PutTestResult(existingId, updateDto);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+            _mockContext.Verify(c => c.SaveChangesAsync(default), Times.Once());
+        }
+
+        [Fact]
+        public async Task DeleteTestResult_ReturnsNoContent_ForValidId()
+        {
+            // Arrange
+            long existingId = 1;
+
+            _mockContext.Setup(c => c.TestResults.FindAsync(It.IsAny<object[]>()))
+                        .ReturnsAsync((object[] ids) => _testResults.FirstOrDefault(tr => tr.TestResultId == (long)ids[0]));
+
+            // Act
+            var result = await _controller.DeleteTestResult(existingId);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+            _mockContext.Verify(c => c.TestResults.Remove(It.IsAny<TestResult>()), Times.Once());
+            _mockContext.Verify(c => c.SaveChangesAsync(default), Times.Once());
+        }
     }
 }

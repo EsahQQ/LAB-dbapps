@@ -11,13 +11,14 @@
         <form name="dataForm">
             <input type="hidden" name="resultId" value="0" />
             <div class="form-group">
-                <label for="studentId">ID Студента:</label>
-                <input class="form-control" name="studentId" type="number" />
+                <label for="studentId">Студент:</label>
+                <select class="form-control" name="studentId"></select>
             </div>
             <div class="form-group">
-                <label for="testId">ID Теста:</label>
-                <input class="form-control" name="testId" type="number" />
+                <label for="testId">Тест:</label>
+                <select class="form-control" name="testId"></select>
             </div>
+
             <div class="form-group">
                 <label for="score">Балл:</label>
                 <input class="form-control" name="score" type="number" />
@@ -54,6 +55,30 @@
         const apiUri = "/api/TestResults";
         const tableBody = document.querySelector("tbody");
         const dataForm = document.forms["dataForm"];
+
+        async function getStudentsForSelect() {
+            const response = await fetch("/api/Students");
+            if (response.ok) {
+                const students = await response.json();
+                const select = dataForm.elements["studentId"];
+                select.innerHTML = ''; 
+                students.forEach(student => {
+                    select.append(new Option(student.fullName, student.studentId));
+                });
+            }
+        }
+
+        async function getTestsForSelect() {
+            const response = await fetch("/api/Tests");
+            if (response.ok) {
+                const tests = await response.json();
+                const select = dataForm.elements["testId"];
+                select.innerHTML = ''; 
+                tests.forEach(test => {
+                    select.append(new Option(test.title, test.testId));
+                });
+            }
+        }
 
         async function getTestResults() {
             const response = await fetch(apiUri, {
@@ -197,7 +222,15 @@
             }
         });
 
-        getTestResults();
+        async function initializePage() {
+            await Promise.all([
+                getStudentsForSelect(),
+                getTestsForSelect(),
+                getTestResults()
+            ]);
+        }
+
+        initializePage();
     </script>
 </body>
 </html>

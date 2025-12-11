@@ -54,16 +54,30 @@ public class TestResultsController : ControllerBase
     /// <returns>Найденный результат теста или ошибку 404.</returns>
     // GET: api/TestResults/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<TestResult>> GetTestResult(long id)
+    public async Task<ActionResult<TestResultViewModel>> GetTestResult(long id) 
     {
-        var testResult = await _context.TestResults.FindAsync(id);
+        var testResult = await _context.TestResults
+            .Include(tr => tr.Student)
+            .Include(tr => tr.Test)
+            .FirstOrDefaultAsync(tr => tr.TestResultId == id); 
 
         if (testResult == null)
         {
             return NotFound();
         }
 
-        return testResult;
+        var viewModel = new TestResultViewModel
+        {
+            TestResultId = testResult.TestResultId,
+            StudentId = testResult.StudentId,
+            StudentName = testResult.Student.FullName, 
+            TestId = testResult.TestId,
+            TestTitle = testResult.Test.Title,   
+            Score = testResult.Score,
+            CompletionDate = testResult.CompletionDate
+        };
+
+        return viewModel;
     }
 
     /// <summary>
