@@ -1,4 +1,4 @@
-name: Build and Publish for lab6
+name: Build, Test and Publish for lab6
 
 on:
   push:
@@ -34,5 +34,4 @@ jobs:
       run: dotnet test --configuration Release --no-build --verbosity normal
       
     - name: Publish application
-      run: dotnet publish --configuration Release --output ./publish --no-build 
-      
+      run: dotnet publish --configuration Release --output ./publish --no-build
